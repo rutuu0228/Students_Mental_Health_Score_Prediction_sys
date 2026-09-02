@@ -195,7 +195,57 @@ This is the current baseline result, **not the final tuned-model performance**.
 
 ---
 
-## 🖼️ Visualizations
+## 📊 Key Visualizations
+
+Selected EDA visualizations are highlighted below to make the project easier to explore directly from the README.
+
+### Correlation Heatmap
+
+Shows the correlation structure among the numerical variables used during exploratory analysis.
+
+<p align="center">
+  <img src="Images/03_Correlation_Heatmap_Image/Correlation_Heatmap.png" alt="Correlation Heatmap" width="850">
+</p>
+
+### Average Daily Usage Hours vs Mental Health Score
+
+Explores the relationship between average daily digital usage and the target variable.
+
+<p align="center">
+  <img src="Images/02_Bivariate_Analysis_Plots_Images/01_Average_Daily_Usage_Hours_vs_Mental_Health_Score.png" alt="Average Daily Usage Hours vs Mental Health Score" width="850">
+</p>
+
+### Study Hours vs Mental Health Score
+
+Explores the relationship between study hours and the predicted target variable.
+
+<p align="center">
+  <img src="Images/02_Bivariate_Analysis_Plots_Images/02_Study_Hours_vs_Mental_Health_Score.png" alt="Study Hours vs Mental Health Score" width="850">
+</p>
+
+### Sleep Hours vs Mental Health Score
+
+Explores the relationship between sleep duration and mental health score.
+
+<p align="center">
+  <img src="Images/02_Bivariate_Analysis_Plots_Images/03_Sleep_Hours_vs_Mental_Health_Score.png" alt="Sleep Hours vs Mental Health Score" width="850">
+</p>
+
+### Target Distribution
+
+Shows the distribution of the `Mental_Health_Score` target variable.
+
+<p align="center">
+  <img src="Images/04_Target_Variable_Analysis_Image/Distribution_of_Mental_Health_Score.png" alt="Distribution of Mental Health Score" width="850">
+</p>
+
+> **Note:** These plots are descriptive EDA visualizations. They should not be interpreted as evidence of medical causation or clinical relationships.
+
+[View all project visualizations →](Images/)
+
+---
+
+## 🖼️ Visualization Directory
 
 The repository contains dedicated folders for the project's analysis visuals:
 
@@ -331,13 +381,20 @@ This project demonstrates practical experience with an end-to-end machine-learni
 
 ---
 
-## 👩‍💻 Author
+## 👩‍💻 Project Authors & Contributors
 
-**Rutuja Dhumal**  
+### Rutuja Dhumal — Project Author
+
 B.Sc. Data Science Student | Aspiring Data Scientist & Data Analyst
 
 - GitHub: [@rutuu0228](https://github.com/rutuu0228)
 - LinkedIn: [rutuu0208](https://www.linkedin.com/in/rutuu0208/)
+
+### Vaibhav Solanke Badrinarayan — Project Contributor
+
+Project contributor and collaborator.
+
+- Email: [solankevaibhavbadrinarayan@gmail.com](mailto:solankevaibhavbadrinarayan@gmail.com)
 
 ---
 
