@@ -157,7 +157,14 @@ The processed feature dataset contains **4,998 rows and 77 columns** after trans
 
 `Notebooks/05_Model_Building.ipynb`
 
-Multiple regression models were evaluated to identify a strong baseline model for predicting `Mental_Health_Score`.
+Four regression models were trained and evaluated on the same test dataset:
+
+1. Linear Regression
+2. Decision Tree Regressor
+3. Random Forest Regressor
+4. Gradient Boosting Regressor
+
+The models were compared using **MAE, RMSE and R² Score**. Random Forest achieved the strongest baseline performance among the four models.
 
 ### 06 — Model Tuning
 
@@ -180,18 +187,26 @@ Configuration currently defined in the notebook:
 
 ## 📈 Current Model Status
 
-Among the regression models evaluated so far, **Random Forest Regression** produced the strongest baseline result recorded in the project.
+The four baseline regression models were evaluated on the same test dataset. The complete comparison below is taken from the model-building notebook.
 
-**Baseline R² Score: `0.9167`**
+| Stage | Model / Method | Status | MAE | RMSE | R² Score |
+|---|---|---|---:|---:|---:|
+| Baseline comparison | Linear Regression | ✅ Completed | **0.475815** | **0.613455** | **0.789197** |
+| Baseline comparison | Decision Tree Regressor | ✅ Completed | **0.322800** | **0.515810** | **0.850964** |
+| **Best baseline** | **Random Forest Regressor** | ✅ Completed | **0.277949** | **0.385650** | **0.916690** |
+| Baseline comparison | Gradient Boosting Regressor | ✅ Completed | **0.410558** | **0.529632** | **0.842870** |
+| Hyperparameter tuning | RandomizedSearchCV | 🚧 In progress | — | — | Not finalized |
+| Final predictor | Final tuned pipeline | ⏳ Planned | — | — | Not available yet |
 
-This is the current baseline result, **not the final tuned-model performance**.
+### 🏆 Baseline Result
 
-| Stage | Model / Method | Status | Result |
-|---|---|---|---:|
-| Baseline comparison | Multiple regression models | ✅ Completed | — |
-| Best baseline | Random Forest Regressor | ✅ Completed | **R² = 0.9167** |
-| Hyperparameter tuning | RandomizedSearchCV | 🚧 In progress | Not finalized |
-| Final predictor | Final tuned pipeline | ⏳ Planned | Not available yet |
+**Random Forest Regressor** is currently the best-performing baseline model:
+
+- **MAE:** `0.277949`
+- **RMSE:** `0.385650`
+- **R²:** `0.916690`
+
+This means the current Random Forest baseline explains approximately **91.67% of the variance** in the test-set target values. This is a baseline result and **not the final tuned-model performance**.
 
 ---
 
@@ -217,7 +232,7 @@ Explores the relationship between average daily digital usage and the target var
 
 ### Study Hours vs Mental Health Score
 
-Explores the relationship between study hours and the predicted target variable.
+Explores the relationship between study hours and the target variable.
 
 <p align="center">
   <img src="Images/02_Bivariate_Analysis_Plots_Images/02_Study_Hours_vs_Mental_Health_Score.png" alt="Study Hours vs Mental Health Score" width="850">
@@ -376,7 +391,7 @@ This project demonstrates practical experience with an end-to-end machine-learni
 - Feature transformation using `ColumnTransformer`.
 - Regression model comparison.
 - Cross-validation and hyperparameter-search concepts.
-- Model evaluation using R².
+- Model evaluation using MAE, RMSE and R².
 - Organizing a data-science project into reproducible stages.
 
 ---
