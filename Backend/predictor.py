@@ -1,8 +1,8 @@
 import joblib
 import pandas as pd
 
-from gemini_chatbot import chat_with_gemini
-from feature_analysis import (
+from Backend.gemini_chatbot import chat_with_gemini
+from Backend.feature_analysis import (
     analyze_student_features,
     create_ai_feature_context,
     get_score_category
