@@ -4,6 +4,42 @@ from pathlib import Path
 
 
 # ============================================================
+# COUNTRY PREPROCESSING
+# ============================================================
+
+CLEANED_DATA_PATH = (
+    "Data/02_Cleaned/"
+    "Student Social Media And Mental Health Impact Cleaned Data.csv"
+)
+
+cleaned_data = pd.read_csv(CLEANED_DATA_PATH)
+
+country_counts = cleaned_data["Country"].value_counts()
+
+
+def prepare_model_input(student_data):
+    """
+    Prepare student data in the same format used during ML training.
+
+    Original training logic:
+    Countries with fewer than 5 observations are grouped
+    into 'Rare_Country'.
+    """
+
+    input_df = pd.DataFrame([student_data])
+
+    input_df["Country_Processed"] = input_df["Country"].apply(
+        lambda x: "Rare_Country"
+        if country_counts.get(x, 0) < 5
+        else x
+    )
+
+    input_df = input_df.drop(columns=["Country"])
+
+    return input_df
+
+
+# ============================================================
 # SCORE CATEGORY
 # ============================================================
 
@@ -331,7 +367,7 @@ def analyze_student_features(
 
     if model is not None and preprocessor is not None:
 
-        input_df = pd.DataFrame([student_data])
+        input_df = prepare_model_input(student_data)
 
         processed_data = preprocessor.transform(input_df)
 
@@ -369,7 +405,7 @@ def analyze_student_features(
 
             counterfactual[feature] = rule["reference"]
 
-            cf_df = pd.DataFrame([counterfactual])
+            cf_df = prepare_model_input(counterfactual)
 
             cf_processed = preprocessor.transform(cf_df)
 
@@ -651,7 +687,7 @@ if __name__ == "__main__":
         "Stress_Level":
             "High",
 
-        "Country_Processed":
+        "Country":
             "India"
     }
 
@@ -659,9 +695,9 @@ if __name__ == "__main__":
     # Prediction
     # --------------------------------------------------------
 
-    input_df = pd.DataFrame([
+    input_df = prepare_model_input(
         sample_student
-    ])
+    )
 
     processed_data = preprocessor.transform(
         input_df

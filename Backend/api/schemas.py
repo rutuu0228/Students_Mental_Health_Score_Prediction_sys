@@ -13,7 +13,7 @@ class StudentInput(BaseModel):
     Physical_Activity_Hours: float
     Sleep_Hours_Per_Night: float
     Stress_Level: str
-    Country_Processed: str
+    Country: str
 
 class ChatInput(BaseModel):
     message: str

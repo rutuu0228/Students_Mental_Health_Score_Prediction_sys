@@ -1,6 +1,15 @@
 import joblib
 import pandas as pd
 
+CLEANED_DATA_PATH = (
+    "Data/02_Cleaned/"
+    "Student Social Media And Mental Health Impact Cleaned Data.csv"
+)
+
+cleaned_data = pd.read_csv(CLEANED_DATA_PATH)
+
+country_counts = cleaned_data["Country"].value_counts()
+
 from Backend.gemini_chatbot import chat_with_gemini
 from Backend.feature_analysis import (
     analyze_student_features,
@@ -24,6 +33,14 @@ model = joblib.load("Models/final_random_forest.pkl")
 def predict_mental_health_score(student_data):
 
     input_df = pd.DataFrame([student_data])
+
+    input_df["Country_Processed"] = input_df["Country"].apply(
+        lambda x: "Rare_Country"
+        if country_counts.get(x, 0) < 5
+        else x
+    )
+
+    input_df = input_df.drop(columns=["Country"])
 
     processed_data = preprocessor.transform(input_df)
 
