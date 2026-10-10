@@ -1,3 +1,12 @@
 .env
 venv/
 __pycache__/
+
+# Frontend dependencies and generated build files
+node_modules/
+dist/
+dist-ssr/
+.output/
+.vinxi/
+.tanstack/
+*.local
