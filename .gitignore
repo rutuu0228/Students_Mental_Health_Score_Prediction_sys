@@ -10,3 +10,14 @@ dist-ssr/
 .vinxi/
 .tanstack/
 *.local
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Debug
+dev-debug.log
+
+# /local project copy
+vrittacare-source/
