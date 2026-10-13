@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from Backend.api.schemas import ChatInput
-from Backend.gemini_chatbot import chat_with_gemini
+from api.schemas import ChatInput
+from gemini_chatbot import chat_with_gemini
 
 
 router = APIRouter(

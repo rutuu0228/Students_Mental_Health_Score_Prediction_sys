@@ -8,8 +8,7 @@ from pathlib import Path
 # ============================================================
 
 CLEANED_DATA_PATH = (
-    "Data/02_Cleaned/"
-    "Student Social Media And Mental Health Impact Cleaned Data.csv"
+    r"V:\Data\02_Cleaned\Student Social Media And Mental Health Impact Cleaned Data.csv"
 )
 
 cleaned_data = pd.read_csv(CLEANED_DATA_PATH)

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from Backend.api.schemas import StudentInput
-from Backend.predictor import create_prediction_context
+from api.schemas import StudentInput
+from predictor import create_prediction_context
 
 
 router = APIRouter(

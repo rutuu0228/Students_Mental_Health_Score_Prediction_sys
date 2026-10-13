@@ -2,9 +2,19 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { buildInsights, lifestyleCards, prettyFeature, type AssessmentInput } from "./mb";
+import {
+  buildInsights,
+  lifestyleCards,
+  prettyFeature,
+  type AssessmentInput,
+} from "./mb";
 
-export type ChatMessage = { id: string; role: "user" | "assistant"; content: string; created_at: string };
+export type ChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+};
 
 type Row = Record<string, unknown>;
 
@@ -26,30 +36,49 @@ export const getChatMessages = createServerFn({ method: "GET" })
       .eq("user_id", context.userId)
       .order("created_at", { ascending: true })
       .limit(200);
-    return (data ?? []).map((r) => toMessage(r as Row));
+
+    return (data ?? []).map((row) => toMessage(row as Row));
   });
 
 export const clearChat = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await context.supabase.from("chat_messages").delete().eq("user_id", context.userId);
+    await context.supabase
+      .from("chat_messages")
+      .delete()
+      .eq("user_id", context.userId);
+
     return { ok: true };
   });
 
-function buildContext(assessment: AssessmentInput | null, result: Row | null) {
+function buildContext(
+  assessment: AssessmentInput | null,
+  result: Row | null
+): string {
   if (!assessment) {
     return "The user has not completed an assessment yet. Encourage them to take one; do not invent any score.";
   }
+
   const cards = lifestyleCards(assessment)
-    .map((c) => `${c.label}: ${c.value}${c.unit ? " " + c.unit : ""} (${c.tag})`)
+    .map(
+      (card) =>
+        `${card.label}: ${card.value}${card.unit ? " " + card.unit : ""} (${card.tag})`
+    )
     .join("; ");
+
   const insights = buildInsights(assessment)
-    .map((i) => `${i.title}: ${i.text}`)
+    .map((insight) => `${insight.title}: ${insight.text}`)
     .join(" | ");
 
   const factors = Array.isArray(result?.["feature_importance"])
-    ? (result["feature_importance"] as { feature: string; importance: number }[])
-        .map((f) => `${prettyFeature(f.feature)} (${f.importance.toFixed(3)})`)
+    ? (result["feature_importance"] as {
+        feature: string;
+        importance: number;
+      }[])
+        .map(
+          (factor) =>
+            `${prettyFeature(factor.feature)} (${factor.importance.toFixed(3)})`
+        )
         .join(", ")
     : "not available";
 
@@ -65,32 +94,47 @@ function buildContext(assessment: AssessmentInput | null, result: Row | null) {
 
 export const sendChatMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ message: z.string().min(1).max(2000) }).parse(input))
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        message: z.string().min(1).max(2000),
+      })
+      .parse(input)
+  )
   .handler(async ({ data, context }): Promise<{ reply: ChatMessage }> => {
     const { supabase, userId } = context;
 
-    const [{ data: assessments }, { data: results }, { data: history }] = await Promise.all([
-      supabase.from("assessments").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(2),
-      supabase
-        .from("prediction_results")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(2),
-      supabase
-        .from("chat_messages")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: true })
-        .limit(40),
-    ]);
+    const [{ data: assessments }, { data: results }, { data: history }] =
+      await Promise.all([
+        supabase
+          .from("assessments")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(2),
+        supabase
+          .from("prediction_results")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(2),
+        supabase
+          .from("chat_messages")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: true })
+          .limit(40),
+      ]);
 
-    const latest = (assessments?.[0] as unknown as AssessmentInput | undefined) ?? null;
+    const latest =
+      (assessments?.[0] as unknown as AssessmentInput | undefined) ?? null;
     const latestResult = (results?.[0] as Row | undefined) ?? null;
     const previousResult = (results?.[1] as Row | undefined) ?? null;
 
     const comparison = previousResult
-      ? `Previous model score: ${Number(previousResult["score"]).toFixed(1)}/10 on ${String(previousResult["created_at"]).slice(0, 10)}.`
+      ? `Previous model score: ${Number(previousResult["score"]).toFixed(1)}/10 on ${String(
+          previousResult["created_at"]
+        ).slice(0, 10)}.`
       : "There is no earlier result to compare with.";
 
     const system = [
@@ -103,57 +147,145 @@ export const sendChatMessage = createServerFn({ method: "POST" })
       comparison,
     ].join("\n");
 
-    const apiKey = process.env["LOVABLE_API_KEY"];
-    if (!apiKey) throw new Error("The assistant is not configured (missing AI key).");
+    const apiKey = process.env["GEMINI_API_KEY"];
 
-    const priorMessages = (history ?? []).map((r) => ({
-      role: (r as Row)["role"] as "user" | "assistant",
-      content: (r as Row)["content"] as string,
-    }));
-
-    const { streamText } = await import("ai");
-    const { createOpenAI } = await import("@ai-sdk/openai");
-
-    const provider = createOpenAI({
-      baseURL: "https://ai.gateway.lovable.dev/v1",
-      apiKey,
-      headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-    });
-
-    let text: string;
-    try {
-      const result = streamText({
-        model: provider.responses("openai/gpt-6-astra"),
-        system,
-        messages: [...priorMessages, { role: "user" as const, content: data.message }],
-        providerOptions: {
-          openai: { forceReasoning: true, reasoningEffort: "low", store: false },
-        },
-      });
-      text = (await result.text).trim();
-    } catch (error) {
-      const message = (error as Error).message ?? "";
-      if (message.includes("402")) throw new Error("The assistant is out of AI credits. Please add credits to continue.");
-      if (message.includes("429")) throw new Error("The assistant is busy right now. Please try again in a moment.");
-      throw new Error(`The assistant could not respond: ${message}`);
+    if (!apiKey) {
+      throw new Error(
+        "The assistant is not configured (missing Gemini API key)."
+      );
     }
 
-    if (!text) text = "I couldn't put that into words just now — could you rephrase your question?";
+    const priorMessages = (history ?? []).map((row) => ({
+      role: (row as Row)["role"] as "user" | "assistant",
+      content: (row as Row)["content"] as string,
+    }));
+
+    const geminiMessages = [
+      ...priorMessages.map((message) => ({
+        role: message.role === "assistant" ? "model" : "user",
+        parts: [{ text: message.content }],
+      })),
+      {
+        role: "user",
+        parts: [{ text: data.message }],
+      },
+    ];
+
+    const requestBody = {
+      system_instruction: {
+        parts: [{ text: system }],
+      },
+      contents: geminiMessages,
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 500,
+      },
+    };
+
+    let text = "";
+    let lastError = "";
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestBody),
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          lastError =
+            result?.error?.message ??
+            `Gemini request failed with status ${response.status}`;
+
+          const isTemporary =
+            response.status === 429 ||
+            response.status === 503 ||
+            lastError.includes("high demand") ||
+            lastError.includes("overloaded");
+
+          if (isTemporary && attempt < 2) {
+            await new Promise((resolve) =>
+              setTimeout(resolve, 3000 * (attempt + 1))
+            );
+            continue;
+          }
+
+          throw new Error(lastError);
+        }
+
+        text =
+          result?.candidates?.[0]?.content?.parts
+            ?.map((part: { text?: string }) => part.text ?? "")
+            .join("")
+            .trim() ?? "";
+
+        break;
+      } catch (error) {
+        lastError = (error as Error).message ?? "Unknown Gemini error";
+
+        if (attempt < 2) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, 3000 * (attempt + 1))
+          );
+          continue;
+        }
+      }
+    }
+
+    if (!text) {
+      if (
+        lastError.includes("high demand") ||
+        lastError.includes("overloaded") ||
+        lastError.includes("429")
+      ) {
+        throw new Error(
+          "The assistant is busy right now. Please try again in a moment."
+        );
+      }
+
+      throw new Error(`The assistant could not respond: ${lastError}`);
+    }
 
     const { data: inserted, error } = await supabase
       .from("chat_messages")
       .insert([
-        { user_id: userId, role: "user", content: data.message },
-        { user_id: userId, role: "assistant", content: text },
+        {
+          user_id: userId,
+          role: "user",
+          content: data.message,
+        },
+        {
+          user_id: userId,
+          role: "assistant",
+          content: text,
+        },
       ])
       .select("*");
 
-    if (error) throw new Error(`Could not save the conversation: ${error.message}`);
+    if (error) {
+      throw new Error(`Could not save the conversation: ${error.message}`);
+    }
 
-    const assistantRow = (inserted ?? []).find((r) => (r as Row)["role"] === "assistant");
+    const assistantRow = (inserted ?? []).find(
+      (row) => (row as Row)["role"] === "assistant"
+    );
+
     return {
       reply: assistantRow
         ? toMessage(assistantRow as Row)
-        : { id: crypto.randomUUID(), role: "assistant", content: text, created_at: new Date().toISOString() },
+        : {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: text,
+            created_at: new Date().toISOString(),
+          },
     };
   });

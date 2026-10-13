@@ -2,16 +2,15 @@ import joblib
 import pandas as pd
 
 CLEANED_DATA_PATH = (
-    "Data/02_Cleaned/"
-    "Student Social Media And Mental Health Impact Cleaned Data.csv"
+r"V:\Data\02_Cleaned\Student Social Media And Mental Health Impact Cleaned Data.csv"
 )
 
 cleaned_data = pd.read_csv(CLEANED_DATA_PATH)
 
 country_counts = cleaned_data["Country"].value_counts()
 
-from Backend.gemini_chatbot import chat_with_gemini
-from Backend.feature_analysis import (
+from gemini_chatbot import chat_with_gemini
+from feature_analysis import (
     analyze_student_features,
     create_ai_feature_context,
     get_score_category
@@ -22,8 +21,8 @@ from Backend.feature_analysis import (
 # LOAD MODEL
 # ============================================================
 
-preprocessor = joblib.load("Models/preprocessor.pkl")
-model = joblib.load("Models/final_random_forest.pkl")
+preprocessor = joblib.load(r"V:\Models\preprocessor.pkl")
+model = joblib.load(r"V:\Models\final_random_forest.pkl")
 
 
 # ============================================================
