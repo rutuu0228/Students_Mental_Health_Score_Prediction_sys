@@ -73,7 +73,7 @@ The screenshots are stored in [VRITTACARE_screenshots](VRITTACARE_screenshots/).
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="VRITTACARE_screenshots/Screenshot%202026-10-13%20151003.png" alt="Personalized dashboard with wellness score" width="100%"/>
+      <img src="VRITTACARE_screenshots/Screenshot 2026-10-13 125107.png" alt="Personalized dashboard with wellness score after taking assesment" width="100%"/>
       <sub><strong>Personalized dashboard</strong></sub>
     </td>
     <td width="50%" align="center">
