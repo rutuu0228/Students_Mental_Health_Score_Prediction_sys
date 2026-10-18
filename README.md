@@ -362,6 +362,8 @@ B.Sc. Data Science student | Data Science, Machine Learning, backend integration
 
 ### Vaibhav Solanke Badrinarayan — Project author2
 
+B.Sc. Data Science student | Data Science, Dataset Understanding, Machine Learning, and product experience
+
 Project collaborator.
 
 - Email: [solankevaibhavbadrinarayan@gmail.com](mailto:solankevaibhavbadrinarayan@gmail.com)
