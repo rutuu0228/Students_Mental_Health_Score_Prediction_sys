@@ -1,10 +1,10 @@
 // Client-side integration with the local Python FastAPI prediction backend.
-// The request is made from the browser so that 127.0.0.1 resolves to the
+// The request is made from the browser so that https://students-mental-health-backend.onrender.com resolves to the
 // machine running the FastAPI server.
 
 import type { AssessmentInput } from "./mb";
 
-export const PREDICTION_URL = "http://127.0.0.1:8000/predict";
+export const PREDICTION_URL = "https://students-mental-health-backend.onrender.com";
 
 export type PredictionItem = {
   area: string;
@@ -112,7 +112,7 @@ export async function predictMentalHealth(
     });
   } catch {
     throw new PredictionError(
-      "Could not reach the prediction server at 127.0.0.1:8000. Make sure your FastAPI server is running (with CORS enabled for this app) and try again.",
+      "Could not reach the prediction server at https://students-mental-health-backend.onrender.com. Make sure your FastAPI server is running (with CORS enabled for this app) and try again.",
     );
   }
 

@@ -21,3 +21,7 @@ dev-debug.log
 
 # /local project copy
 vrittacare-source/
+
+
+models/final_random_forest.pkl
+VRITTACARE_screenshots/*.mp4

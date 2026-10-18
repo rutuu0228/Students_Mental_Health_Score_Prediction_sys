@@ -1,11 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/mb/app-shell";
 import { Panel, SectionTitle } from "@/components/mb/primitives";
-import { predictMentalHealth, PredictionError, savePrediction } from "@/lib/prediction";
+import { submitAssessment } from "@/lib/dashboard.functions";
 import {
   ACADEMIC_LEVELS,
   COUNTRIES,
@@ -22,10 +23,14 @@ export const Route = createFileRoute("/_authenticated/assessment")({
       { title: "Take Assessment · VRITTACARE" },
       {
         name: "description",
-        content: "Answer twelve quick questions about your routine and social media use to get your wellness score.",
+        content:
+          "Answer twelve quick questions about your routine and social media use to get your wellness score.",
       },
       { property: "og:title", content: "Take Assessment · VRITTACARE" },
-      { property: "og:description", content: "Twelve quick questions about your daily routine." },
+      {
+        property: "og:description",
+        content: "Twelve quick questions about your daily routine.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -51,20 +56,33 @@ const DEFAULTS: AssessmentInput = {
 function AssessmentPage() {
   const [form, setForm] = useState<AssessmentInput>(DEFAULTS);
   const navigate = useNavigate();
+  const submit = useServerFn(submitAssessment);
 
   const mutation = useMutation({
-    mutationFn: () => predictMentalHealth(form),
-    onSuccess: (result) => {
-      savePrediction(result, form);
-      toast.success("Your assessment was scored by the model.");
+    mutationFn: async () => {
+      console.log("ASSESSMENT_DEBUG: submitting form", form);
+      return submit({ data: form });
+    },
+    onSuccess: (response) => {
+      if (response.ok) {
+        toast.success("Your assessment was saved and scored.");
+      } else {
+        toast.warning(
+          response.message ??
+            "Assessment saved, but the prediction service was unavailable."
+        );
+      }
       navigate({ to: "/results" });
     },
     onError: (error: Error) => {
-      toast.error(error instanceof PredictionError ? error.message : `Prediction failed: ${error.message}`);
+      toast.error(error.message);
     },
   });
 
-  function set<K extends keyof AssessmentInput>(key: K, value: AssessmentInput[K]) {
+  function set<K extends keyof AssessmentInput>(
+    key: K,
+    value: AssessmentInput[K]
+  ) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
@@ -75,7 +93,8 @@ function AssessmentPage() {
           Take Assessment
         </SectionTitle>
         <p className="mb-5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          All twelve answers are sent to the trained model exactly as you enter them.
+          All twelve answers are sent to the trained model exactly as you enter
+          them.
         </p>
 
         <form
@@ -85,9 +104,26 @@ function AssessmentPage() {
             mutation.mutate();
           }}
         >
-          <Num label="Age" value={form.age} min={10} max={100} step={1} onChange={(v) => set("age", v)} />
-          <Sel label="Gender" value={form.gender} options={GENDERS} onChange={(v) => set("gender", v)} />
-          <Sel label="Country" value={form.country} options={COUNTRIES} onChange={(v) => set("country", v)} />
+          <Num
+            label="Age"
+            value={form.age}
+            min={10}
+            max={100}
+            step={1}
+            onChange={(v) => set("age", v)}
+          />
+          <Sel
+            label="Gender"
+            value={form.gender}
+            options={GENDERS}
+            onChange={(v) => set("gender", v)}
+          />
+          <Sel
+            label="Country"
+            value={form.country}
+            options={COUNTRIES}
+            onChange={(v) => set("country", v)}
+          />
           <Sel
             label="Academic Level"
             value={form.academic_level}
@@ -122,7 +158,14 @@ function AssessmentPage() {
             step={1}
             onChange={(v) => set("daily_unlocks", v)}
           />
-          <Num label="Study Hours" value={form.study_hours} min={0} max={24} step={0.5} onChange={(v) => set("study_hours", v)} />
+          <Num
+            label="Study Hours"
+            value={form.study_hours}
+            min={0}
+            max={24}
+            step={0.5}
+            onChange={(v) => set("study_hours", v)}
+          />
           <Num
             label="Physical Activity (hours)"
             value={form.physical_activity_hours}
@@ -149,7 +192,9 @@ function AssessmentPage() {
           <div className="sm:col-span-2">
             {mutation.isError && (
               <p className="mb-3 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-                {mutation.error instanceof Error ? mutation.error.message : "The prediction request failed. Please try again."}
+                {mutation.error instanceof Error
+                  ? mutation.error.message
+                  : "The prediction request failed. Please try again."}
               </p>
             )}
             <button
@@ -183,7 +228,9 @@ function Num({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-medium text-muted-foreground">{label}</span>
+      <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+        {label}
+      </span>
       <input
         type="number"
         value={value}
@@ -211,7 +258,9 @@ function Sel({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-medium text-muted-foreground">{label}</span>
+      <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+        {label}
+      </span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}

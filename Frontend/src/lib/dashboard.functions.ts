@@ -12,6 +12,7 @@ import {
   type Assessment,
   type DashboardData,
   type FactorImportance,
+  type ModelInsight,
   type PredictionResult,
 } from "./mb";
 
@@ -31,6 +32,43 @@ const assessmentSchema = z.object({
 });
 
 type Row = Record<string, unknown>;
+
+type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue | undefined };
+
+function toJsonValue(value: unknown): JsonValue {
+  if (
+    value === null ||
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  ) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(toJsonValue);
+  }
+
+  if (typeof value === "object") {
+    const output: { [key: string]: JsonValue | undefined } = {};
+
+    for (const [key, item] of Object.entries(
+      value as Record<string, unknown>
+    )) {
+      output[key] = toJsonValue(item);
+    }
+
+    return output;
+  }
+
+  return null;
+}
 
 function toAssessment(row: Row): Assessment {
   return {
@@ -53,13 +91,19 @@ function toAssessment(row: Row): Assessment {
 }
 
 function toResult(row: Row): PredictionResult {
+  const analysis = (row["feature_analysis"] ?? {}) as {
+    feature_importance?: FactorImportance[];
+    model_version?: string | null;
+    raw?: unknown;
+  };
+
   return {
     id: row["id"] as string,
     assessment_id: row["assessment_id"] as string,
-    score: Number(row["score"]),
-    status_label: row["status_label"] as string,
-    feature_importance: (row["feature_importance"] as FactorImportance[]) ?? [],
-    model_version: (row["model_version"] as string | null) ?? null,
+    score: Number(row["mental_health_score"]),
+    status_label: row["score_category"] as string,
+    feature_importance: analysis.feature_importance ?? [],
+    model_version: analysis.model_version ?? null,
     created_at: row["created_at"] as string,
   };
 }
@@ -69,7 +113,11 @@ export const getDashboardData = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<DashboardData> => {
     const { supabase, userId } = context;
 
-    const [{ data: assessments }, { data: results }, { data: profile }] = await Promise.all([
+    const [
+      { data: assessments },
+      { data: results },
+      { data: profile },
+    ] = await Promise.all([
       supabase
         .from("assessments")
         .select("*")
@@ -82,31 +130,76 @@ export const getDashboardData = createServerFn({ method: "GET" })
         .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(40),
-      supabase.from("profiles").select("display_name").eq("id", userId).maybeSingle(),
+      supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", userId)
+        .maybeSingle(),
     ]);
 
-    const assessmentRows = (assessments ?? []).map((r) => toAssessment(r as Row));
-    const resultRows = (results ?? []).map((r) => toResult(r as Row));
+    const assessmentRows = (assessments ?? []).map((row) =>
+      toAssessment(row as Row)
+    );
+
+    const resultRows = (results ?? []).map((row) =>
+      toResult(row as Row)
+    );
 
     const history = assessmentRows.map((assessment) => ({
       assessment,
-      result: resultRows.find((r) => r.assessment_id === assessment.id) ?? null,
+      result:
+        resultRows.find(
+          (item) => item.assessment_id === assessment.id
+        ) ?? null,
     }));
 
-    const { isPredictionServiceConfigured } = await import("./prediction.server");
+    const { isPredictionServiceConfigured } = await import(
+      "./prediction.server"
+    );
+
+    const latestResult = history[0]?.result ?? null;
+
+    const latestRawResultRow = (results ?? [])[0] as
+      | Row
+      | undefined;
+
+    const featureAnalysisContainer = ((latestRawResultRow?.[
+      "feature_analysis"
+    ] ?? {}) as {
+      raw?: {
+        needs_attention?: ModelInsight[];
+        watch?: ModelInsight[];
+        stable?: ModelInsight[];
+      };
+      needs_attention?: ModelInsight[];
+      watch?: ModelInsight[];
+      stable?: ModelInsight[];
+    });
+
+    const featureAnalysis =
+      featureAnalysisContainer.raw ?? featureAnalysisContainer;
 
     return {
       assessment: assessmentRows[0] ?? null,
-      result: history[0]?.result ?? null,
+      result: latestResult,
+      insights: {
+        needs_attention: featureAnalysis.needs_attention ?? [],
+        watch: featureAnalysis.watch ?? [],
+        stable: featureAnalysis.stable ?? [],
+      },
       history,
-      displayName: ((profile as Row | null)?.["display_name"] as string | null) ?? null,
-      predictionServiceConfigured: isPredictionServiceConfigured(),
+      displayName:
+        ((profile as Row | null)?.["display_name"] as
+          | string
+          | null) ?? null,
+      predictionServiceConfigured:
+        isPredictionServiceConfigured(),
     };
   });
 
 export const submitAssessment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => assessmentSchema.parse(input))
+  .validator((input: unknown) => assessmentSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -117,33 +210,50 @@ export const submitAssessment = createServerFn({ method: "POST" })
       .single();
 
     if (error || !inserted) {
-      throw new Error(`Could not save your assessment: ${error?.message ?? "unknown error"}`);
+      console.error("ASSESSMENT_SAVE_ERROR:", error);
+
+      throw new Error(
+        `Could not save your assessment: ${
+          error?.message ?? "unknown error"
+        }`
+      );
     }
 
     const assessment = toAssessment(inserted as Row);
 
-    const { predict, PredictionServiceError } = await import("./prediction.server");
+    const { predict, PredictionServiceError } = await import(
+      "./prediction.server"
+    );
 
     try {
       const prediction = await predict(assessment);
       const status = scoreStatus(prediction.score);
 
-      const { error: resultError } = await supabase.from("prediction_results").insert({
-        user_id: userId,
-        assessment_id: assessment.id,
-        score: prediction.score,
-        status_label: status.label,
-        feature_importance: prediction.feature_importance,
-        insights: [],
-        model_version: prediction.model_version,
-        raw_response: prediction.raw as never,
-      });
+      const { error: resultError } = await supabase
+        .from("prediction_results")
+        .insert({
+          user_id: userId,
+          assessment_id: assessment.id,
+          mental_health_score: prediction.score,
+          score_category: status.label,
+          feature_analysis: {
+            feature_importance: prediction.feature_importance,
+            model_version: prediction.model_version,
+            raw: toJsonValue(prediction.raw),
+          },
+        });
 
       if (resultError) {
-        throw new Error(`Could not save the prediction: ${resultError.message}`);
+        throw new Error(
+          `Could not save the prediction: ${resultError.message}`
+        );
       }
 
-      return { ok: true as const, assessmentId: assessment.id, score: prediction.score };
+      return {
+        ok: true as const,
+        assessmentId: assessment.id,
+        score: prediction.score,
+      };
     } catch (error) {
       if (error instanceof PredictionServiceError) {
         return {
@@ -153,6 +263,7 @@ export const submitAssessment = createServerFn({ method: "POST" })
           message: error.message,
         };
       }
+
       throw error;
     }
   });

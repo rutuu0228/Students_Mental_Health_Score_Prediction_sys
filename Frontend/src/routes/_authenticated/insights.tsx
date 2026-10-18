@@ -1,23 +1,49 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, CheckCircle2, Heart, Lightbulb, Moon, Sparkles, Wind } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Heart,
+  Lightbulb,
+  Sparkles,
+} from "lucide-react";
 
 import { AppShell } from "@/components/mb/app-shell";
-import { Panel, SectionTitle, StatusPill } from "@/components/mb/primitives";
-import { loadPrediction, type PredictionItem, type SavedPrediction } from "@/lib/prediction";
-import { radarValues, scoreStatus } from "@/lib/mb";
-import { supabase } from "@/integrations/supabase/client";
-import { getInsightOpener, getUserSeed, getWellnessQuote } from "@/lib/personalization";
+import {
+  Panel,
+  SectionTitle,
+  StatusPill,
+} from "@/components/mb/primitives";
+import {
+  radarValues,
+  scoreStatus,
+  type AssessmentInput,
+  type ModelInsight,
+} from "@/lib/mb";
+import { getDashboardData } from "@/lib/dashboard.functions";
+import {
+  getInsightOpener,
+  getUserSeed,
+  getWellnessQuote,
+} from "@/lib/personalization";
 
 export const Route = createFileRoute("/_authenticated/insights")({
   errorComponent: () => (
     <AppShell>
       <Panel>
-        <SectionTitle sub="Your assessment data is still safe.">Insights could not load</SectionTitle>
+        <SectionTitle sub="Your assessment data is still safe.">
+          Insights could not load
+        </SectionTitle>
+
         <p className="text-sm leading-relaxed text-muted-foreground">
           Please return to the dashboard and open Insights & Tips again.
         </p>
-        <Link to="/dashboard" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-mb-cyan to-primary px-5 py-3 text-sm font-bold text-primary-foreground">
+
+        <Link
+          to="/dashboard"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-mb-cyan to-primary px-5 py-3 text-sm font-bold text-primary-foreground"
+        >
           Back to Dashboard <ArrowRight className="h-4 w-4" />
         </Link>
       </Panel>
@@ -26,9 +52,20 @@ export const Route = createFileRoute("/_authenticated/insights")({
   head: () => ({
     meta: [
       { title: "Your Next Steps · VRITTACARE" },
-      { name: "description", content: "Turn your VRITTACARE assessment into small, practical wellness actions." },
-      { property: "og:title", content: "Your Next Steps · VRITTACARE" },
-      { property: "og:description", content: "Practical, personalized guidance from your latest assessment." },
+      {
+        name: "description",
+        content:
+          "Turn your VRITTACARE assessment into small, practical wellness actions.",
+      },
+      {
+        property: "og:title",
+        content: "Your Next Steps · VRITTACARE",
+      },
+      {
+        property: "og:description",
+        content:
+          "Practical, personalized guidance from your latest assessment.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -37,27 +74,53 @@ export const Route = createFileRoute("/_authenticated/insights")({
 });
 
 function InsightsPage() {
-  const [saved, setSaved] = useState<SavedPrediction | null>(null);
+  const load = useServerFn(getDashboardData);
+
+  const [data, setData] = useState<
+    Awaited<ReturnType<typeof load>> | null
+  >(null);
   const [checked, setChecked] = useState(false);
   const [userSeed, setUserSeed] = useState("vrittacare");
 
   useEffect(() => {
-    const current = loadPrediction();
-    setSaved(current);
-    supabase.auth.getUser().then(({ data }) => {
-      const seed = getUserSeed(data.user?.id ?? data.user?.email, current?.assessment);
-      setUserSeed(seed);
-    });
-    setChecked(true);
-  }, []);
+    let active = true;
 
-  const assessment = saved?.assessment ?? null;
-  const status = saved ? scoreStatus(saved.result.score) : null;
+    load()
+      .then((dashboard) => {
+        if (!active) return;
+
+        setData(dashboard);
+        setUserSeed(
+          getUserSeed(dashboard.displayName, dashboard.assessment)
+        );
+        setChecked(true);
+      })
+      .catch(() => {
+        if (active) setChecked(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [load]);
+
+  const assessment = data?.assessment ?? null;
+  const result = data?.result ?? null;
+
+  const actionItems =
+    data?.insights?.needs_attention ?? [];
+  const watchItems = data?.insights?.watch ?? [];
+  const stableItems = data?.insights?.stable ?? [];
+
+  const status = result ? scoreStatus(result.score) : null;
 
   const signals = useMemo(() => {
     if (!assessment) return [];
+
     try {
-      return radarValues(assessment).filter((item) => Number.isFinite(item.value));
+      return radarValues(assessment as AssessmentInput).filter(
+        (item) => Number.isFinite(item.value)
+      );
     } catch {
       return [];
     }
@@ -65,29 +128,50 @@ function InsightsPage() {
 
   const strongest = useMemo(() => {
     if (!signals.length) return null;
-    return signals.reduce((best, item) => (item.value > best.value ? item : best), signals[0] ?? { label: "", value: 0 });
+
+    return signals.reduce((best, item) =>
+      item.value > best.value ? item : best
+    );
   }, [signals]);
 
   const focus = useMemo(() => {
     if (!signals.length) return null;
-    return signals.reduce((lowest, item) => (item.value < lowest.value ? item : lowest), signals[0] ?? { label: "", value: 0 });
+
+    return signals.reduce((lowest, item) =>
+      item.value < lowest.value ? item : lowest
+    );
   }, [signals]);
 
-  const actionItems = Array.isArray(saved?.result.needs_attention) ? saved.result.needs_attention : [];
-  const watchItems = Array.isArray(saved?.result.watch) ? saved.result.watch : [];
-  const stableItems = Array.isArray(saved?.result.stable) ? saved.result.stable : [];
-  const insightCard = (item: PredictionItem, tone: "cyan" | "violet") => (
+  const insightCard = (
+    item: ModelInsight,
+    tone: "cyan" | "violet"
+  ) => (
     <article className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
       <div className="flex items-start gap-3">
-        <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${tone === "violet" ? "bg-mb-violet/10 text-mb-violet" : "bg-mb-cyan/10 text-mb-cyan"}`}>
+        <div
+          className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${
+            tone === "violet"
+              ? "bg-mb-violet/10 text-mb-violet"
+              : "bg-mb-cyan/10 text-mb-cyan"
+          }`}
+        >
           <Sparkles className="h-4 w-4" />
         </div>
+
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-sm font-bold">{item.area}</h3>
-            <span className="text-[11px] text-muted-foreground">{String(item.current_value)}</span>
+
+            {item.current_value !== undefined ? (
+              <span className="text-[11px] text-muted-foreground">
+                {String(item.current_value)}
+              </span>
+            ) : null}
           </div>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.message}</p>
+
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+            {item.message}
+          </p>
         </div>
       </div>
     </article>
@@ -101,37 +185,71 @@ function InsightsPage() {
           <div className="absolute -bottom-24 left-1/3 h-52 w-52 rounded-full bg-mb-violet/10 blur-3xl" />
 
           <div className="relative max-w-3xl">
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-mb-cyan">Your personal action space</p>
-            <h1 className="mt-2 text-3xl font-extrabold tracking-tight md:text-4xl">{getInsightOpener(userSeed, saved?.result.score ? Math.round(saved.result.score * 10) : 2)}</h1>
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-mb-cyan">
+              Your personal action space
+            </p>
 
-            {!checked ? null : saved && status ? (
+            <h1 className="mt-2 text-3xl font-extrabold tracking-tight md:text-4xl">
+              {getInsightOpener(
+                userSeed,
+                result ? Math.round(result.score * 10) : 2
+              )}
+            </h1>
+
+            {!checked ? null : result && status ? (
               <>
                 <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <StatusPill tone={saved.result.score >= 6.5 ? "good" : saved.result.score >= 5 ? "warn" : "bad"}>{saved.result.category}</StatusPill>
+                  <StatusPill
+                    tone={
+                      result.score >= 6.5
+                        ? "good"
+                        : result.score >= 5
+                          ? "warn"
+                          : "bad"
+                    }
+                  >
+                    {result.status_label}
+                  </StatusPill>
+
                   <span className="text-sm text-muted-foreground">
-                    Your latest check-in score is {saved.result.score.toFixed(1)}/10.
+                    Your latest check-in score is{" "}
+                    {result.score.toFixed(1)}/10.
                   </span>
                 </div>
+
                 <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                  Your result is a snapshot of your current habits. Here, we turn it into a few simple ideas you can try in everyday life.
+                  Your result is a snapshot of your current habits.
+                  Here, we turn it into a few simple ideas you can try
+                  in everyday life.
                 </p>
               </>
             ) : (
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                Complete an assessment first. Then this page becomes your personal space for practical next steps.
+                Complete an assessment first. Then this page becomes
+                your personal space for practical next steps.
               </p>
             )}
           </div>
         </section>
 
-        {!checked ? null : !saved || !assessment ? (
+        {!checked ? null : !assessment ? (
           <Panel>
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <SectionTitle sub="Your guidance is built from your own assessment answers.">Your plan is waiting</SectionTitle>
-                <p className="text-sm text-muted-foreground">Take the assessment to unlock personalized actions instead of generic advice.</p>
+                <SectionTitle sub="Your guidance is built from your own assessment answers.">
+                  Your plan is waiting
+                </SectionTitle>
+
+                <p className="text-sm text-muted-foreground">
+                  Take the assessment to unlock personalized actions
+                  instead of generic advice.
+                </p>
               </div>
-              <Link to="/assessment" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-mb-cyan to-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-mb-glow">
+
+              <Link
+                to="/assessment"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-mb-cyan to-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-mb-glow"
+              >
                 Take Assessment <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -140,47 +258,88 @@ function InsightsPage() {
           <>
             <div className="grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
               <Panel hover className="relative overflow-hidden">
-                <SectionTitle sub="A simple snapshot of the habits you shared.">What shaped your result</SectionTitle>
+                <SectionTitle sub="A simple snapshot of the habits you shared.">
+                  What shaped your result
+                </SectionTitle>
+
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <div className="rounded-2xl border border-mb-cyan/15 bg-mb-cyan/[0.05] p-5">
-                    <p className="text-xs uppercase tracking-[0.16em] text-mb-cyan">Strongest signal</p>
-                    <p className="mt-2 text-2xl font-extrabold">{strongest?.label}</p>
+                    <p className="text-xs uppercase tracking-[0.16em] text-mb-cyan">
+                      Strongest signal
+                    </p>
+
+                    <p className="mt-2 text-2xl font-extrabold">
+                      {strongest?.label}
+                    </p>
+
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      {strongest ? `${strongest.label} currently sits highest in your personal profile at ${Math.round(strongest.value)}%.` : "Your profile will appear after an assessment."}
+                      {strongest
+                        ? `${strongest.label} currently sits highest in your personal profile at ${Math.round(
+                            strongest.value * 100
+                          )}%.`
+                        : "Your profile will appear after an assessment."}
                     </p>
                   </div>
+
                   <div className="rounded-2xl border border-mb-violet/15 bg-mb-violet/[0.05] p-5">
-                    <p className="text-xs uppercase tracking-[0.16em] text-mb-violet">Area to notice</p>
-                    <p className="mt-2 text-2xl font-extrabold">{focus?.label}</p>
+                    <p className="text-xs uppercase tracking-[0.16em] text-mb-violet">
+                      Area to notice
+                    </p>
+
+                    <p className="mt-2 text-2xl font-extrabold">
+                      {focus?.label}
+                    </p>
+
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      {focus ? `${focus.label} currently sits lowest in your personal profile at ${Math.round(focus.value)}%.` : "Your profile will appear after an assessment."}
+                      {focus
+                        ? `${focus.label} currently sits lowest in your personal profile at ${Math.round(
+                            focus.value * 100
+                          )}%.`
+                        : "Your profile will appear after an assessment."}
                     </p>
                   </div>
                 </div>
+
                 <p className="mt-5 border-l-2 border-mb-cyan/40 pl-4 text-lg font-medium leading-relaxed text-foreground/90">
                   “{getWellnessQuote(userSeed, 11)}”
                 </p>
               </Panel>
 
               <Panel hover>
-                <SectionTitle sub="A quick look at what you shared in your latest check-in.">Your latest signals</SectionTitle>
+                <SectionTitle sub="A quick look at what you shared in your latest check-in.">
+                  Your latest signals
+                </SectionTitle>
+
                 <div className="mt-3 space-y-2">
-                  {assessment ? (
-                    <>
-                      {[
-                        ["Sleep", `${assessment.sleep_hours_per_night} hrs`],
-                        ["Study", `${assessment.study_hours} hrs`],
-                        ["Screen Usage", `${assessment.avg_daily_usage_hours} hrs`],
-                        ["Activity", `${assessment.physical_activity_hours} hrs`],
-                        ["Stress", assessment.stress_level],
-                      ].map(([label, value]) => (
-                        <div key={label} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3">
-                          <span className="text-sm font-semibold">{label}</span>
-                          <span className="text-sm text-muted-foreground">{value}</span>
-                        </div>
-                      ))}
-                    </>
-                  ) : null}
+                  {[
+                    [
+                      "Sleep",
+                      `${assessment.sleep_hours_per_night} hrs`,
+                    ],
+                    ["Study", `${assessment.study_hours} hrs`],
+                    [
+                      "Screen Usage",
+                      `${assessment.avg_daily_usage_hours} hrs`,
+                    ],
+                    [
+                      "Activity",
+                      `${assessment.physical_activity_hours} hrs`,
+                    ],
+                    ["Stress", assessment.stress_level],
+                  ].map(([label, value]) => (
+                    <div
+                      key={label}
+                      className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3"
+                    >
+                      <span className="text-sm font-semibold">
+                        {label}
+                      </span>
+
+                      <span className="text-sm text-muted-foreground">
+                        {value}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </Panel>
             </div>
@@ -189,66 +348,134 @@ function InsightsPage() {
               <SectionTitle sub="A simple way to turn your result into one small, realistic next step.">
                 Your focus path
               </SectionTitle>
+
               <div className="mt-5 grid gap-3 md:grid-cols-3">
                 {[
                   {
                     step: "01",
                     label: "Start here",
                     item: actionItems[0] ?? watchItems[0],
-                    tone: "cyan",
+                    tone: "cyan" as const,
                     icon: Heart,
                   },
                   {
                     step: "02",
                     label: "Then notice",
-                    item: watchItems.find((item) => item.area !== (actionItems[0]?.area ?? "")) ?? watchItems[0],
-                    tone: "violet",
+                    item:
+                      watchItems.find(
+                        (item) =>
+                          item.area !==
+                          (actionItems[0]?.area ?? "")
+                      ) ?? watchItems[0],
+                    tone: "violet" as const,
                     icon: Lightbulb,
                   },
                   {
                     step: "03",
                     label: "Keep going",
                     item: stableItems[0],
-                    tone: "cyan",
+                    tone: "cyan" as const,
                     icon: CheckCircle2,
                   },
-                ].map(({ step, label, item, tone, icon: Icon }) => (
-                  <div key={step} className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] p-5">
-                    <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${tone === "violet" ? "bg-mb-violet/10 text-mb-violet" : "bg-mb-cyan/10 text-mb-cyan"}`}>
-                      <Icon className="h-4 w-4" />
+                ].map(
+                  ({ step, label, item, tone, icon: Icon }) => (
+                    <div
+                      key={step}
+                      className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] p-5"
+                    >
+                      <div
+                        className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+                          tone === "violet"
+                            ? "bg-mb-violet/10 text-mb-violet"
+                            : "bg-mb-cyan/10 text-mb-cyan"
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </div>
+
+                      <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                        {step} · {label}
+                      </p>
+
+                      {item ? (
+                        <>
+                          <h3 className="mt-2 text-base font-extrabold">
+                            {item.area}
+                          </h3>
+
+                          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                            {item.message}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <h3 className="mt-2 text-base font-extrabold">
+                            Keep checking in
+                          </h3>
+
+                          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                            Small, steady habits are easier to build
+                            than big changes all at once.
+                          </p>
+                        </>
+                      )}
                     </div>
-                    <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{step} · {label}</p>
-                    {item ? (
-                      <>
-                        <h3 className="mt-2 text-base font-extrabold">{item.area}</h3>
-                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.message}</p>
-                      </>
-                    ) : (
-                      <>
-                        <h3 className="mt-2 text-base font-extrabold">Keep checking in</h3>
-                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Small, steady habits are easier to build than big changes all at once.</p>
-                      </>
-                    )}
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             </Panel>
 
             <Panel>
-              <SectionTitle sub="A quick summary of what your latest check-in highlighted.">What to focus on</SectionTitle>
+              <SectionTitle sub="A quick summary of what your latest check-in highlighted.">
+                What to focus on
+              </SectionTitle>
+
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
                 {[
-                  { label: "Needs a little attention", items: actionItems, tone: "cyan" },
-                  { label: "Keep an eye on", items: watchItems, tone: "violet" },
-                  { label: "Going well", items: stableItems, tone: "cyan" },
+                  {
+                    label: "Needs a little attention",
+                    items: actionItems,
+                    tone: "cyan" as const,
+                  },
+                  {
+                    label: "Keep an eye on",
+                    items: watchItems,
+                    tone: "violet" as const,
+                  },
+                  {
+                    label: "Going well",
+                    items: stableItems,
+                    tone: "cyan" as const,
+                  },
                 ].map(({ label, items, tone }) => (
-                  <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-                    <p className={`text-xs font-bold uppercase tracking-[0.14em] ${tone === "violet" ? "text-mb-violet" : "text-mb-cyan"}`}>{label}</p>
-                    <p className="mt-2 text-2xl font-extrabold">{items.length}</p>
-                    <p className="text-xs text-muted-foreground">{items.length === 1 ? "area" : "areas"}</p>
+                  <div
+                    key={label}
+                    className="rounded-2xl border border-white/10 bg-white/[0.035] p-4"
+                  >
+                    <p
+                      className={`text-xs font-bold uppercase tracking-[0.14em] ${
+                        tone === "violet"
+                          ? "text-mb-violet"
+                          : "text-mb-cyan"
+                      }`}
+                    >
+                      {label}
+                    </p>
+
+                    <p className="mt-2 text-2xl font-extrabold">
+                      {items.length}
+                    </p>
+
+                    <p className="text-xs text-muted-foreground">
+                      {items.length === 1 ? "area" : "areas"}
+                    </p>
+
                     <div className="mt-3 flex flex-wrap gap-2">
                       {items.slice(0, 4).map((item) => (
-                        <span key={item.area} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-foreground/80">
+                        <span
+                          key={item.area}
+                          className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-foreground/80"
+                        >
                           {item.area}
                         </span>
                       ))}
@@ -261,14 +488,25 @@ function InsightsPage() {
             <section className="overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.035] backdrop-blur-2xl">
               <div className="grid md:grid-cols-[1fr_auto] md:items-center">
                 <div className="p-6 md:p-7">
-                  <div className="flex items-center gap-2 text-sm font-bold"><Lightbulb className="h-4 w-4 text-mb-cyan" /> A gentle reminder</div>
+                  <div className="flex items-center gap-2 text-sm font-bold">
+                    <Lightbulb className="h-4 w-4 text-mb-cyan" />
+                    A gentle reminder
+                  </div>
+
                   <p className="mt-3 max-w-2xl text-lg leading-relaxed text-foreground/85">
-                    Your result is information, not identity. If something feels difficult, reaching out to a trusted person or qualified professional is a strength.
+                    Your result is information, not identity. If
+                    something feels difficult, reaching out to a trusted
+                    person or qualified professional is a strength.
                   </p>
                 </div>
+
                 <div className="border-t border-white/10 p-5 md:border-l md:border-t-0">
-                  <Link to="/chat" className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-bold transition hover:bg-white/10">
-                    Talk with your assistant <ArrowRight className="h-4 w-4 text-mb-cyan" />
+                  <Link
+                    to="/chat"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-bold transition hover:bg-white/10"
+                  >
+                    Talk with your assistant{" "}
+                    <ArrowRight className="h-4 w-4 text-mb-cyan" />
                   </Link>
                 </div>
               </div>
