@@ -1,420 +1,382 @@
-# 🧠 Student Mental Health Score Prediction
 
-> **Machine Learning project to analyze student lifestyle and digital-usage patterns and predict a continuous mental health score.**
+# VRITTACARE — Student Mental Health Score Prediction
 
-[![Python](https://img.shields.io/badge/Python-3.x-38BDF8?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-334155?style=for-the-badge&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
-[![Scikit--learn](https://img.shields.io/badge/Scikit--learn-Machine%20Learning-38BDF8?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
-[![Jupyter](https://img.shields.io/badge/Jupyter-Notebooks-334155?style=for-the-badge&logo=jupyter&logoColor=white)](https://jupyter.org/)
+<p align="center">
+  <strong>A student-focused wellness experience powered by machine learning.</strong><br/>
+  From everyday habits to understandable insights and practical next steps.
+</p>
 
----
+<p align="center">
+  <a href="https://students-mental-health-frontend.onrender.com"><img src="https://img.shields.io/badge/Live%20App-Open%20VRITTACARE-06b6d4?style=for-the-badge&logo=render&logoColor=white" alt="Open the live app"/></a>
+  <a href="https://students-mental-health-backend-1.onrender.com/docs"><img src="https://img.shields.io/badge/API-FastAPI%20Docs-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI API documentation"/></a>
+  <a href="https://github.com/rutuu0228/Students_Mental_Health_Score_Prediction_sys"><img src="https://img.shields.io/badge/Source-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub repository"/></a>
+</p>
 
-## 📌 Project Overview
-
-Students' mental well-being can be influenced by multiple lifestyle and digital-usage factors such as social-media/platform usage, study time, physical activity, sleep, and stress.
-
-This project follows an end-to-end **Data Science + Machine Learning workflow** to understand these patterns and build a regression model that predicts a student's **Mental Health Score**.
-
-The project is currently **in progress**. The data analysis and baseline model development are completed, while hyperparameter tuning and the final predictor are still being developed.
-
----
-
-## 🎯 Problem Statement
-
-The goal is to investigate whether student lifestyle and digital-usage variables can be used to predict a continuous **Mental Health Score** using machine learning regression techniques.
-
-### Objectives
-
-- Understand the structure and quality of the dataset.
-- Clean and prepare the data for analysis.
-- Explore relationships between student habits and mental health score.
-- Engineer and transform features for machine learning.
-- Compare regression models.
-- Identify a strong baseline model.
-- Tune the selected model to improve its performance.
-- Build a reliable final prediction workflow.
-
-> ⚠️ **Important:** This project is an academic machine-learning project. The predicted score is **not a medical diagnosis or a substitute for professional mental-health assessment.**
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-Backend%20%26%20ML-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"/>
+  <img src="https://img.shields.io/badge/FastAPI-REST%20API-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI"/>
+  <img src="https://img.shields.io/badge/scikit--learn-Regression-F7931E?style=flat-square&logo=scikitlearn&logoColor=white" alt="scikit-learn"/>
+  <img src="https://img.shields.io/badge/React-Frontend-61DAFB?style=flat-square&logo=react&logoColor=111827" alt="React"/>
+  <img src="https://img.shields.io/badge/TypeScript-Typed%20UI-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"/>
+  <img src="https://img.shields.io/badge/Supabase-Auth%20%26%20Data-3FCF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase"/>
+  <img src="https://img.shields.io/badge/Deployment-Render-46E3B7?style=flat-square&logo=render&logoColor=111827" alt="Render"/>
+</p>
 
 ---
 
-## 📊 Dataset
+## 🌐 Live application
 
-The original dataset contains **5,000 student records and 13 columns**.
-
-After data cleaning, **2 duplicate records were removed**, leaving **4,998 records** for further analysis.
-
-### Key Features
-
-| Category | Features |
+| Service | Link |
 |---|---|
-| Demographics | Age, Gender, Country, Academic Level |
-| Digital Usage | Most Used Platform, Purpose of Use, Average Daily Usage Hours, Daily Unlocks |
-| Lifestyle | Study Hours, Physical Activity Hours, Sleep Hours per Night |
-| Well-being | Stress Level |
-| Target | Mental Health Score |
+| **VRITTACARE frontend** | [Open the live application](https://students-mental-health-frontend.onrender.com) |
+| **FastAPI backend** | [Open the backend service](https://students-mental-health-backend-1.onrender.com) |
+| **Interactive API documentation** | [Explore endpoints in Swagger UI](https://students-mental-health-backend-1.onrender.com/docs) |
+| **API health check** | [Check service health](https://students-mental-health-backend-1.onrender.com/health) |
 
-### Target Variable
+> Render services on free or sleeping plans may need a short warm-up period after inactivity.
 
-**`Mental_Health_Score`** — a continuous numerical value used as the prediction target, making this a **regression problem**.
+## 🧭 What is VRITTACARE?
 
----
+**VRITTACARE** is an end-to-end student mental-health score prediction and wellness-insight system. It combines a trained regression model with a calm, interactive web application to help students reflect on patterns in their daily routines.
 
-## 🔄 Data Science Workflow
+A student completes a lifestyle assessment covering sleep, study time, physical activity, screen usage, phone unlock frequency, stress, and selected demographic or academic details. The backend processes those answers with the trained prediction pipeline and returns a score, a project-defined category, and feature-level observations. The application presents the result through visual summaries and practical, non-judgmental suggestions.
 
-```text
-Raw Dataset
-     ↓
-Data Understanding
-     ↓
-Data Cleaning
-     ↓
-Exploratory Data Analysis (EDA)
-     ↓
-Feature Engineering
-     ↓
-Model Building
-     ↓
-Hyperparameter Tuning
-     ↓
-Final Predictor
+**Assessment → Prediction → Understanding → Small, practical actions**
+
+This is an educational project for self-reflection. It does **not** diagnose a mental-health condition, replace a qualified professional, or establish that any lifestyle factor causes a mental-health outcome.
+
+## ✨ Product highlights
+
+- **Account access** — sign-in and account creation for a personalized experience.
+- **Guided wellness assessment** — structured inputs for lifestyle, digital habits, academic context, and self-reported stress.
+- **Live ML prediction** — assessment data is sent to a Python FastAPI service using the trained Random Forest pipeline.
+- **Readable results** — a score gauge and project-defined score category make model output easier to understand.
+- **Feature-level observations** — results are grouped into **Needs Attention**, **Can Improve / Watch**, and **Favorable / Stable** areas.
+- **Personalized insights and tips** — practical next steps based on the submitted assessment and generated analysis.
+- **Wellness Assistant** — a chat experience designed to explain student context in clear, supportive language.
+- **Visual wellness profile** — lifestyle metrics and a 3D wellness-profile view.
+- **Saved user context** — Supabase-backed authentication and user-scoped assessment, result, and chat-data workflows.
+- **Project information** — an in-app About page explains the purpose, workflow, and team contributions.
+
+## 🖼️ Application screenshots
+
+The screenshots are stored in [VRITTACARE_screenshots](VRITTACARE_screenshots/).
+
+### Sign in and account creation
+
+<p align="center">
+  <img src="VRITTACARE_screenshots/Screenshot%202026-10-13%20125018.png" alt="VRITTACARE sign-in screen" width="90%"/>
+</p>
+
+### Dashboard and assessment
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="VRITTACARE_screenshots/Screenshot%202026-10-13%20151003.png" alt="Personalized dashboard with wellness score" width="100%"/>
+      <sub><strong>Personalized dashboard</strong></sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="VRITTACARE_screenshots/Screenshot%202026-10-13%20125137.png" alt="Wellness assessment form" width="100%"/>
+      <sub><strong>Wellness assessment</strong></sub>
+    </td>
+  </tr>
+</table>
+
+### Prediction results and wellness insights
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="VRITTACARE_screenshots/Screenshot%202026-10-13%20150427.png" alt="Prediction results with score gauge and feature breakdown" width="100%"/>
+      <sub><strong>Prediction results</strong></sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="VRITTACARE_screenshots/Screenshot%202026-10-13%20150527.png" alt="Personalized wellness insights and action suggestions" width="100%"/>
+      <sub><strong>Insights and tips</strong></sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="VRITTACARE_screenshots/Screenshot%202026-10-18%20141746.png" alt="Lifestyle focus areas and practical wellness actions" width="100%"/>
+      <sub><strong>Practical next steps</strong></sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="VRITTACARE_screenshots/Screenshot%202026-10-13%20151051.png" alt="Interactive 3D wellness profile" width="100%"/>
+      <sub><strong>3D wellness profile</strong></sub>
+    </td>
+  </tr>
+</table>
+
+### Wellness Assistant and project overview
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="VRITTACARE_screenshots/Screenshot%202026-10-16%20192519.png" alt="VRITTACARE Wellness Assistant chat" width="100%"/>
+      <sub><strong>Wellness Assistant</strong></sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="VRITTACARE_screenshots/Screenshot%202026-10-13%20150732.png" alt="About VRITTACARE project page" width="100%"/>
+      <sub><strong>About the project</strong></sub>
+    </td>
+  </tr>
+</table>
+
+[Browse all screenshots →](VRITTACARE_screenshots/)
+
+## 🏗️ System architecture
+
+```mermaid
+flowchart TD
+    A[Student] --> B[VRITTACARE React + TypeScript UI]
+    B --> C[Supabase Auth and user-scoped data]
+    B --> D[FastAPI REST API]
+    D --> E[Input validation with Pydantic]
+    E --> F[Preprocessing pipeline]
+    F --> G[Trained Random Forest regressor]
+    G --> H[Predicted score and category]
+    H --> I[Feature analysis and guidance context]
+    I --> B
+    D --> J[Wellness Assistant / Gemini integration]
 ```
 
-The workflow is divided into separate notebooks so that each stage of the project can be understood and reproduced independently.
-
----
-
-## 📓 Project Notebooks
-
-### 01 — Data Understanding
-
-`Notebooks/01_Data_Understanding.ipynb`
-
-- Inspected dataset structure and dimensions.
-- Examined columns and data types.
-- Reviewed descriptive statistics.
-- Identified the variables required for further analysis.
-
-### 02 — Data Cleaning
-
-`Notebooks/02_Data_Cleaning.ipynb`
-
-- Checked data quality.
-- Checked for missing values.
-- Identified duplicate records.
-- Removed **2 duplicate rows**.
-- Prepared the cleaned dataset for EDA.
-
-### 03 — Exploratory Data Analysis
-
-`Notebooks/03_EDA.ipynb`
-
-The EDA stage includes:
-
-- Univariate analysis.
-- Bivariate analysis.
-- Correlation analysis.
-- Correlation heatmap.
-- Target-variable distribution analysis.
-- Visualization of important relationships and patterns.
-
-EDA visualizations are organized under the `Images/` directory.
-
-### 04 — Feature Engineering
-
-`Notebooks/04_Feature_Engineering.ipynb`
-
-The feature-engineering pipeline separates the predictors into categorical and numerical features.
-
-**Categorical features:**
-
-- Gender
-- Country
-- Academic Level
-- Most Used Platform
-- Purpose of Use
-- Stress Level
-
-**Numerical features:**
-
-- Age
-- Average Daily Usage Hours
-- Daily Unlocks
-- Study Hours
-- Physical Activity Hours
-- Sleep Hours per Night
-
-The notebook uses:
-
-- `OneHotEncoder`
-- `OrdinalEncoder`
-- `StandardScaler`
-- `ColumnTransformer`
-
-The processed feature dataset contains **4,998 rows and 77 columns** after transformation.
-
-### 05 — Model Building
-
-`Notebooks/05_Model_Building.ipynb`
-
-Four regression models were trained and evaluated on the same test dataset:
-
-1. Linear Regression
-2. Decision Tree Regressor
-3. Random Forest Regressor
-4. Gradient Boosting Regressor
-
-The models were compared using **MAE, RMSE and R² Score**. Random Forest achieved the strongest baseline performance among the four models.
-
-### 06 — Model Tuning
-
-`Notebooks/06_Model_Tunning.ipynb`
-
-The current tuning workflow uses **RandomizedSearchCV** with a `RandomForestRegressor`.
-
-Configuration currently defined in the notebook:
-
-- 20 randomized parameter combinations.
-- 5-fold cross-validation.
-- `r2` scoring.
-- `random_state = 42`.
-- `n_jobs = -1`.
-- Parameters considered include `n_estimators`, `max_depth`, `min_samples_split`, `min_samples_leaf`, and `max_features`.
-
-> 🚧 **Current status:** The hyperparameter-tuning notebook is still being completed. Therefore, a final tuned-model score is intentionally **not claimed here**.
-
----
-
-## 📈 Current Model Status
-
-The four baseline regression models were evaluated on the same test dataset. The complete comparison below is taken from the model-building notebook.
-
-| Stage | Model / Method | Status | MAE | RMSE | R² Score |
-|---|---|---|---:|---:|---:|
-| Baseline comparison | Linear Regression | ✅ Completed | **0.475815** | **0.613455** | **0.789197** |
-| Baseline comparison | Decision Tree Regressor | ✅ Completed | **0.322800** | **0.515810** | **0.850964** |
-| **Best baseline** | **Random Forest Regressor** | ✅ Completed | **0.277949** | **0.385650** | **0.916690** |
-| Baseline comparison | Gradient Boosting Regressor | ✅ Completed | **0.410558** | **0.529632** | **0.842870** |
-| Hyperparameter tuning | RandomizedSearchCV | 🚧 In progress | — | — | Not finalized |
-| Final predictor | Final tuned pipeline | ⏳ Planned | — | — | Not available yet |
-
-### 🏆 Baseline Result
-
-**Random Forest Regressor** is currently the best-performing baseline model:
-
-- **MAE:** `0.277949`
-- **RMSE:** `0.385650`
-- **R²:** `0.916690`
-
-This means the current Random Forest baseline explains approximately **91.67% of the variance** in the test-set target values. This is a baseline result and **not the final tuned-model performance**.
-
----
-
-## 📊 Key Visualizations
-
-Selected EDA visualizations are highlighted below to make the project easier to explore directly from the README.
-
-### Correlation Heatmap
-
-Shows the correlation structure among the numerical variables used during exploratory analysis.
-
-<p align="center">
-  <img src="Images/03_Correlation_Heatmap_Image/Correlation_Heatmap.png" alt="Correlation Heatmap" width="850">
-</p>
-
-### Average Daily Usage Hours vs Mental Health Score
-
-Explores the relationship between average daily digital usage and the target variable.
-
-<p align="center">
-  <img src="Images/02_Bivariate_Analysis_Plots_Images/01_Average_Daily_Usage_Hours_vs_Mental_Health_Score.png" alt="Average Daily Usage Hours vs Mental Health Score" width="850">
-</p>
-
-### Study Hours vs Mental Health Score
-
-Explores the relationship between study hours and the target variable.
-
-<p align="center">
-  <img src="Images/02_Bivariate_Analysis_Plots_Images/02_Study_Hours_vs_Mental_Health_Score.png" alt="Study Hours vs Mental Health Score" width="850">
-</p>
-
-### Sleep Hours vs Mental Health Score
-
-Explores the relationship between sleep duration and mental health score.
-
-<p align="center">
-  <img src="Images/02_Bivariate_Analysis_Plots_Images/03_Sleep_Hours_vs_Mental_Health_Score.png" alt="Sleep Hours vs Mental Health Score" width="850">
-</p>
-
-### Target Distribution
-
-Shows the distribution of the `Mental_Health_Score` target variable.
-
-<p align="center">
-  <img src="Images/04_Target_Variable_Analysis_Image/Distribution_of_Mental_Health_Score.png" alt="Distribution of Mental Health Score" width="850">
-</p>
-
-> **Note:** These plots are descriptive EDA visualizations. They should not be interpreted as evidence of medical causation or clinical relationships.
-
-[View all project visualizations →](Images/)
-
----
-
-## 🖼️ Visualization Directory
-
-The repository contains dedicated folders for the project's analysis visuals:
-
-```text
-Images/
-├── 01_Univariate_Analysis_Plots_Images/
-├── 02_Bivariate_Analysis_Plots_Images/
-├── 03_Correlation_Heatmap_Image/
-└── 04_Target_Variable_Analysis_Image/
+### End-to-end request flow
+
+1. The student signs in and completes the assessment.
+2. The frontend sends the assessment fields to the prediction API.
+3. FastAPI validates the request with a Pydantic schema.
+4. The backend applies the saved preprocessing transformer and trained Random Forest model.
+5. The backend returns the predicted score, category, and grouped feature observations.
+6. VRITTACARE renders the result as a score gauge, lifestyle summaries, and insight cards.
+7. The authenticated application uses Supabase for user-scoped assessment, prediction-result, and chat-history workflows.
+
+## 🧠 Machine-learning workflow
+
+The analysis notebooks document the work from the original dataset through model development:
+
+1. **Data understanding** — inspect dataset structure, columns, types, and summary statistics.
+2. **Data cleaning** — check quality and duplicates; the original analysis recorded 5,000 rows and removed two duplicate records, leaving 4,998.
+3. **Exploratory data analysis** — study distributions and relationships across lifestyle, digital-use, academic, and target variables.
+4. **Feature engineering** — transform categorical and numerical inputs using scikit-learn preprocessing tools.
+5. **Model comparison** — evaluate Linear Regression, Decision Tree, Random Forest, and Gradient Boosting regressors.
+6. **Model tuning and finalization** — tune and save the model pipeline used by the prediction service.
+7. **Inference and interpretation** — return a score with feature-level observations for the application.
+
+### Dataset and input signals
+
+| Input group | Examples |
+|---|---|
+| Demographic / academic | Age, gender, country, academic level |
+| Digital habits | Most-used platform, purpose of use, average daily usage hours, daily phone unlocks |
+| Lifestyle | Study hours, physical-activity hours, sleep hours per night |
+| Self-reported well-being | Stress level |
+| Prediction target | Mental Health Score (continuous regression target) |
+
+The score categories and feature-status rules are project-defined interpretation aids, not clinical thresholds.
+
+### Baseline model benchmark
+
+The model-building notebook documented the following baseline comparison. These are **baseline test-set results**, not a claim that every deployed model artifact has identical performance.
+
+| Baseline model | MAE ↓ | RMSE ↓ | R² ↑ |
+|---|---:|---:|---:|
+| Linear Regression | 0.475815 | 0.613455 | 0.789197 |
+| Decision Tree Regressor | 0.322800 | 0.515810 | 0.850964 |
+| **Random Forest Regressor** | **0.277949** | **0.385650** | **0.916690** |
+| Gradient Boosting Regressor | 0.410558 | 0.529632 | 0.842870 |
+
+Random Forest was the strongest model in this baseline comparison. MAE and RMSE measure prediction error (lower is better); R² describes the proportion of target variance explained on the evaluated test set.
+
+## 🔌 Backend API
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| **GET** | **/health** | Basic service health check |
+| **POST** | **/predict** | Validate student inputs and return prediction context |
+| **POST** | **/chat** | Send a message to the Wellness Assistant |
+| **GET** | **/docs** | Interactive Swagger API documentation |
+
+### Example prediction request
+
+```json
+{
+  "Age": 20,
+  "Gender": "Female",
+  "Academic_Level": "Undergraduate",
+  "Most_Used_Platform": "Instagram",
+  "Purpose_Of_Use": "Entertainment",
+  "Avg_Daily_Usage_Hours": 4.5,
+  "Daily_Unlocks": 60,
+  "Study_Hours": 3.0,
+  "Physical_Activity_Hours": 1.0,
+  "Sleep_Hours_Per_Night": 7.0,
+  "Stress_Level": "Moderate",
+  "Country": "India"
+}
 ```
 
-These visualizations support the exploratory analysis and help communicate relationships within the dataset.
+The values are illustrative request data, not a real user's profile. The API schema in the repository is the source of truth for required fields and types.
 
----
+## 🧰 Technology stack
 
-## 🗂️ Repository Structure
+| Layer | Technologies |
+|---|---|
+| Frontend | React, TypeScript, TanStack Start / Router, Vite |
+| UI and visualization | Tailwind CSS, Radix-based UI components, Recharts, custom wellness charts |
+| Authentication and persistence | Supabase Auth, PostgreSQL, Row Level Security and user-scoped server functions |
+| API | Python, FastAPI, Pydantic, Uvicorn |
+| Machine learning | scikit-learn, pandas, NumPy, joblib |
+| Assistant | Google Gemini API integration |
+| Deployment | Render |
+| Version control | Git and GitHub |
+
+## 🚀 Run locally
+
+### Prerequisites
+
+- Git
+- Node.js and npm (or Bun) for the frontend
+- Python and pip for the backend
+- Supabase project credentials for authenticated/data-backed workflows
+- A Gemini API key if you want to run the backend assistant locally
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/rutuu0228/Students_Mental_Health_Score_Prediction_sys.git
+cd Students_Mental_Health_Score_Prediction_sys
+```
+
+### 2. Run the backend
+
+```bash
+cd Backend
+python -m venv .venv
+```
+
+Activate the environment:
+
+**Windows PowerShell**
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+**macOS / Linux**
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies and start FastAPI:
+
+```bash
+pip install -r requirements.txt
+uvicorn api.main:app --reload --port 8000
+```
+
+Create a local **Backend/.env** file for private configuration, for example:
+
+```env
+GEMINI_API_KEY=replace_with_your_own_key
+```
+
+Never commit real API keys, service-role keys, or other secrets. If your setup hosts the model artifact separately, configure the optional **MODEL_URL** environment variable to point to the intended artifact.
+
+Local API documentation: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs). Health check: [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health).
+
+### 3. Run the frontend
+
+Open a second terminal at the repository root:
+
+```bash
+cd Frontend
+npm install
+```
+
+Create **Frontend/.env** with the public project settings expected by the frontend:
+
+```env
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
+```
+
+Use your own Supabase project URL and publishable key. Do not commit the environment file or place secrets in source code.
+
+```bash
+npm run dev
+```
+
+Vite prints the local frontend URL in the terminal. If the frontend needs to call a different backend address for local testing, update the relevant frontend integration/configuration to use your local API URL.
+
+## 📁 Repository guide
 
 ```text
 Students_Mental_Health_Score_Prediction_sys/
-│
-├── Data/
-│   ├── 01_Raw/
-│   ├── 02_Cleaned/
-│   └── 03_Processed/
-│
-├── Images/
-│   ├── 01_Univariate_Analysis_Plots_Images/
-│   ├── 02_Bivariate_Analysis_Plots_Images/
-│   ├── 03_Correlation_Heatmap_Image/
-│   └── 04_Target_Variable_Analysis_Image/
-│
-├── Notebooks/
-│   ├── 01_Data_Understanding.ipynb
-│   ├── 02_Data_Cleaning.ipynb
-│   ├── 03_EDA.ipynb
-│   ├── 04_Feature_Engineering.ipynb
-│   ├── 05_Model_Building.ipynb
-│   ├── 06_Model_Tunning.ipynb
-│   └── Mental_Health_Predictor.ipynb
-│
-├── Synopsis_and_Reports/
-│   └── 01_Synopsis/
-│
-├── README.md
-└── requirement.txt
+├── Backend/
+│   ├── api/
+│   │   ├── main.py                 # FastAPI app and health endpoint
+│   │   ├── schemas.py              # Pydantic request schemas
+│   │   └── routes/
+│   │       ├── prediction.py       # Prediction endpoint
+│   │       └── chatbot.py          # Assistant endpoint
+│   ├── data/                       # Backend inference data
+│   ├── models/                     # Saved preprocessing/model artifacts
+│   ├── feature_analysis.py         # Feature interpretation and guidance
+│   ├── predictor.py                # Model loading and inference
+│   ├── gemini_chatbot.py           # Assistant integration
+│   ├── requirements.txt
+│   └── Procfile
+├── Data/                           # Raw, cleaned and processed datasets
+├── Images/                         # EDA and model-analysis visuals
+├── Models/                         # Shared model artefacts
+├── Notebooks/                      # Reproducible data-science workflow
+├── Documentation/                  # Synopsis, diagrams and presentation
+├── Frontend/
+│   ├── src/routes/                 # Application pages
+│   ├── src/components/mb/           # VRITTACARE UI components
+│   ├── src/integrations/supabase/   # Supabase and auth integration
+│   └── package.json
+├── VRITTACARE_screenshots/         # Application screenshots
+└── README.md
 ```
 
----
+## 🔐 Responsible use and limitations
 
-## 🛠️ Tech Stack
+- The score is a **model-generated estimate**, not a diagnosis.
+- Category labels and feature-status rules are project-defined guidance, not validated clinical cut-offs.
+- Associations learned from historical data do not prove causation.
+- Results may be affected by dataset coverage, data quality, model limitations, and differences between training data and an individual student's circumstances.
+- Use the application for learning and self-reflection, not for clinical decisions or emergency support.
+- Treat assessment answers as personal information. Use test data where possible, keep credentials private, and review the deployed service's privacy configuration before entering sensitive information.
 
-- **Python** — core programming language
-- **Pandas** — data manipulation and analysis
-- **NumPy** — numerical operations
-- **Matplotlib** — data visualization
-- **Seaborn** — statistical visualization
-- **Scikit-learn** — preprocessing, regression, model evaluation and tuning
-- **Jupyter Notebook** — interactive development and documentation
+## 👥 Project team
 
----
+### Rutuja Dhumal — Project author
 
-## ▶️ How to Explore the Project
-
-Clone the repository and open the notebooks in the following order:
-
-```text
-01_Data_Understanding
-        ↓
-02_Data_Cleaning
-        ↓
-03_EDA
-        ↓
-04_Feature_Engineering
-        ↓
-05_Model_Building
-        ↓
-06_Model_Tunning
-```
-
-The project is structured so that the complete workflow can be followed from raw data preparation through model development.
-
-> **Note:** The `requirement.txt` file is currently being prepared as the project continues to evolve.
-
----
-
-## 🚧 Current Project Status
-
-**Status: In Progress**
-
-### Completed
-
-- [x] Data understanding
-- [x] Data cleaning
-- [x] Exploratory data analysis
-- [x] Feature engineering
-- [x] Baseline model comparison
-- [x] Identification of the strongest baseline model
-
-### In Progress
-
-- [ ] Complete hyperparameter tuning
-- [ ] Evaluate the tuned Random Forest model
-- [ ] Finalize the prediction pipeline
-- [ ] Complete the final predictor notebook
-- [ ] Finalize project dependencies
-
----
-
-## 🔮 Planned Improvements
-
-- Complete and evaluate hyperparameter tuning.
-- Compare tuned performance against the current baseline.
-- Finalize a reproducible prediction pipeline.
-- Add final model evaluation metrics once available.
-- Add a simple prediction interface after the model is finalized.
-- Improve documentation with final model insights and limitations.
-
----
-
-## 📚 What This Project Demonstrates
-
-This project demonstrates practical experience with an end-to-end machine-learning workflow, including:
-
-- Data understanding and quality checking.
-- Data cleaning and duplicate handling.
-- Exploratory data analysis.
-- Categorical encoding and numerical scaling.
-- Feature transformation using `ColumnTransformer`.
-- Regression model comparison.
-- Cross-validation and hyperparameter-search concepts.
-- Model evaluation using MAE, RMSE and R².
-- Organizing a data-science project into reproducible stages.
-
----
-
-## 👩‍💻 Project Authors & Contributors
-
-### Rutuja Dhumal — Project Author
-
-B.Sc. Data Science Student | Aspiring Data Scientist & Data Analyst
+B.Sc. Data Science student | Data Science, Machine Learning, backend integration, and product experience.
 
 - GitHub: [@rutuu0228](https://github.com/rutuu0228)
 - LinkedIn: [rutuu0208](https://www.linkedin.com/in/rutuu0208/)
 
-### Vaibhav Solanke Badrinarayan — Project Contributor
+### Vaibhav Solanke Badrinarayan — Project contributor
 
-Project contributor and collaborator.
+Project collaborator.
 
 - Email: [solankevaibhavbadrinarayan@gmail.com](mailto:solankevaibhavbadrinarayan@gmail.com)
 
+## 🎓 What this project demonstrates
+
+- End-to-end delivery across a data-science workflow, trained model, API, frontend, and deployment.
+- Data cleaning, exploratory analysis, feature engineering, and regression evaluation.
+- Packaging preprocessing and model artifacts for inference.
+- Building and documenting a typed REST API with request validation.
+- Connecting a responsive user experience to authentication and persisted user context.
+- Turning model output into understandable, responsible, user-facing explanations.
+- Communicating technical work through notebooks, diagrams, screenshots, and documentation.
+
 ---
 
-## ⭐ Project Note
-
-This repository is being developed as a practical Data Science and Machine Learning project. The documentation will continue to evolve as model tuning, final evaluation, and the prediction workflow are completed.
-
-If you find the project useful, consider giving it a ⭐ on GitHub.
+<p align="center">
+  <strong>Built to turn data into understanding — and understanding into small, thoughtful steps.</strong><br/>
+  If you find this project useful, consider giving the repository a ⭐.
+</p>
