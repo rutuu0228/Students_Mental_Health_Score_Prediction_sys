@@ -367,6 +367,7 @@ B.Sc. Data Science student | Data Science, Dataset Understanding, Machine Learni
 Project collaborator.
 
 - Email: [solankevaibhavbadrinarayan@gmail.com](mailto:solankevaibhavbadrinarayan@gmail.com)
+- GitHub: [@vaibhavvsolanke](https://github.com/vaibhavvsolanke)
 
 ## 🎓 What this project demonstrates
 
