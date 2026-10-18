@@ -352,14 +352,15 @@ Students_Mental_Health_Score_Prediction_sys/
 
 ## 👥 Project team
 
-### Rutuja Dhumal — Project author
+### Rutuja Dhumal — Project author1
 
 B.Sc. Data Science student | Data Science, Machine Learning, backend integration, and product experience.
 
+- Email: [rutuu0228@gmail.com](mailto:rutuu0228@gmail.com)
 - GitHub: [@rutuu0228](https://github.com/rutuu0228)
 - LinkedIn: [rutuu0208](https://www.linkedin.com/in/rutuu0208/)
 
-### Vaibhav Solanke Badrinarayan — Project contributor
+### Vaibhav Solanke Badrinarayan — Project author2
 
 Project collaborator.
 
