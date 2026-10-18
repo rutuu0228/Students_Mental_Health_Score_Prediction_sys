@@ -298,9 +298,10 @@ Create **Frontend/.env** with the public project settings expected by the fronte
 ```env
 VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
+PREDICTION_API_URL=https://students-mental-health-backend-1.onrender.com
 ```
 
-Use your own Supabase project URL and publishable key. Do not commit the environment file or place secrets in source code.
+Use your own Supabase project URL and publishable key. Set PREDICTION_API_URL to your deployed backend base URL (or your local API URL during local development). If your deployment uses an API key, configure PREDICTION_API_KEY only in the server environment. Do not commit the environment file or place secrets in source code.
 
 ```bash
 npm run dev
